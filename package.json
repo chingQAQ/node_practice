@@ -1,0 +1,26 @@
+{
+  "name": "message-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon --exec babel-node -- ./app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@line/bot-sdk": "^7.2.0",
+    "axios": "^0.21.1",
+    "cheerio": "^1.0.0-rc.5",
+    "dotenv": "^8.2.0",
+    "ejs": "^3.1.5",
+    "express": "^4.17.1",
+    "htmlparser2": "^6.0.0",
+    "node-fetch": "^2.6.1",
+    "nodemon": "^2.0.6"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0"
+  }
+}
