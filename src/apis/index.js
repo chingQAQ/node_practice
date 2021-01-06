@@ -1,1 +1,6 @@
-﻿export * from './api.js';
+﻿const apis = require('./api.js')
+
+module.exports = {
+  api: apis.api
+}
+

@@ -1,15 +1,14 @@
+const express = require('express');
+const path = require('path');
+const { api } = require('./apis');
+const line = require('@line/bot-sdk');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
-
-import express from 'express';
-import path from 'path';
-import { api } from './apis';
-
-import * as line from '@line/bot-sdk';
 
 const LINE_SDK_CONFIG = {
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
   channelSecret: process.env.LINE_CHANNEL_SECRET,
 }
+
 const PORT = process.env.PORT || '3000';
 
 const app = express();
