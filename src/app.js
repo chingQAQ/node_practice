@@ -10,7 +10,7 @@ const LINE_SDK_CONFIG = {
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
   channelSecret: process.env.LINE_CHANNEL_SECRET,
 }
-const PORT = process.env.BASE_PORT || '3000';
+const PORT = process.env.PORT || '3000';
 
 const app = express();
 const client = new line.Client(LINE_SDK_CONFIG);
