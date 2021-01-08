@@ -1,14 +1,20 @@
 {
-  "name": "message-api",
+  "name": "node-practice",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "node ./src/app.js",
-    "dev": "set PORT=4000 && nodemon --exec babel-node ./src/app.js"
+    "server": "set PORT=4000 && nodemon --exec babel-node --presets env ./server/app.js",
+    "frontend-vue": "cross-env NODE_ENV=development webpack-dev-server --open --hot",
+    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
   },
   "author": "",
   "license": "ISC",
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ],
   "dependencies": {
     "@line/bot-sdk": "^7.2.0",
     "axios": "^0.21.1",
@@ -19,13 +25,24 @@
     "express": "^4.17.1",
     "htmlparser2": "^6.0.0",
     "node-fetch": "^2.6.1",
-    "nodemon": "^2.0.6"
+    "nodemon": "^2.0.6",
+    "vue": "^2.5.11",
+    "vue-router": "^3.4.9"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.7.0"
-  },
-  "engines": {
-    "node": "12.x"
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-3": "^6.24.1",
+    "cross-env": "^5.0.5",
+    "css-loader": "^0.28.7",
+    "file-loader": "^1.1.4",
+    "node-sass": "^4.5.3",
+    "sass-loader": "^6.0.6",
+    "vue-loader": "^13.0.5",
+    "vue-template-compiler": "^2.4.4",
+    "webpack": "^3.6.0",
+    "webpack-dev-server": "^2.9.1"
   }
 }

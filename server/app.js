@@ -8,7 +8,6 @@ import { flexHero, flexStructure } from './util';
 import fs from 'fs';
 
 import * as line from '@line/bot-sdk';
-
 const LINE_SDK_CONFIG = {
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
   channelSecret: process.env.LINE_CHANNEL_SECRET,
@@ -85,7 +84,7 @@ const richmenu = {
 client
   .getRichMenuList()
   .then(async richMenu => {
-    richMenu[0].richMenuId && await client.setRichMenuImage(richMenu[0].richMenuId, fs.createReadStream(path.join(__dirname, 'public', 'rich_menu.jpg')));
+    // richMenu[0].richMenuId && await client.setRichMenuImage(richMenu[0].richMenuId, fs.createReadStream(path.join(__dirname, '..', 'public', 'rich_menu.jpg')));
     await client.setDefaultRichMenu(richMenu[0].richMenuId);
     return console.log('done');
   })
@@ -126,6 +125,7 @@ async function handleEvent(event) {
           "contents": message
         }
       });
+
     } else if (data.action === 'nextRich') {
       return client.replyMessage(event.replyToken, {
         "type": "text",
