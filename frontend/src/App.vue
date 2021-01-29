@@ -1,22 +1,22 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <hello-world :msg="msg"/>
+    <nav class="nav">
+      <router-link :to="{path: '/'}">HOME</router-link>
+      <router-link :to="{path: '/messageApi'}">MESSAGE API</router-link>
+      <router-link :to="{path: '/liff'}">LIFF</router-link>
+    </nav>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-  
-  import helloWorld from '@/components/HelloWorld.vue'
-
   export default {
     name: 'app',
     components: {
-      helloWorld,
     },
     data () {
       return {
-        msg: 'Holly!'
+
       }
     }
   }

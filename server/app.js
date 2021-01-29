@@ -1,31 +1,19 @@
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
-
 import express from 'express';
 import path from 'path';
-import querystring from 'querystring';
-import { HOST, api } from './apis';
-import { flexHero, flexStructure } from './util';
-import fs from 'fs';
-
+import crypto from 'crypto';
+import { LINE_SDK_CONFIG } from './config';
+import { typesHandler } from './util';
 import * as line from '@line/bot-sdk';
-const LINE_SDK_CONFIG = {
-  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
-  channelSecret: process.env.LINE_CHANNEL_SECRET,
-}
+
 const PORT = process.env.PORT || '3000';
-
 const app = express();
-const client = new line.Client(LINE_SDK_CONFIG);
 
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-
-app.get('/', (req, res) => {
-  res.render('index');
-})
-
-app.get('/tracking', (req, res) => {
-  res.render('tracking');
+app.use((req, res, next) => {
+  res.append('Access-Control-Allow-Origin', 'http://localhost:8080');
+  res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.append('Access-Control-Allow-Headers', '*');
+  next();
 })
 
 const richmenu = {
@@ -81,117 +69,43 @@ const richmenu = {
 
 // client.createRichMenu(richmenu).then(result => console.log(result)).catch(err => console.log(err));
 
-client
-  .getRichMenuList()
-  .then(async richMenu => {
-    // richMenu[0].richMenuId && await client.setRichMenuImage(richMenu[0].richMenuId, fs.createReadStream(path.join(__dirname, '..', 'public', 'rich_menu.jpg')));
-    await client.setDefaultRichMenu(richMenu[0].richMenuId);
-    return console.log('done');
-  })
-
-
+// client
+//   .getRichMenuList()
+//   .then(async richMenu => {
+//     // richMenu[0].richMenuId && await client.setRichMenuImage(richMenu[0].richMenuId, fs.createReadStream(path.join(__dirname, '..', 'public', 'rich_menu.jpg')));
+//     await client.setDefaultRichMenu(richMenu[0].richMenuId);
+//     return console.log('done');
+//   })
 
 // 1. user 發送訊息
-app.post('/callback/', line.middleware(LINE_SDK_CONFIG), (req, res) => {
+app.post('/webhook', line.middleware(LINE_SDK_CONFIG), (req, res) => {
+  const isSameSignature = signatureCheck(req, LINE_SDK_CONFIG.channelSecret);
   // 3. 傳送 request
-  Promise
-    .all(req.body.events.map(handleEvent))
-    .then((result) => {
-      return res.json(result)
-    })
-    .catch(err => console.log(err));
+  if (isSameSignature) {
+    Promise
+      .all(req.body.events.map(handleEvent))
+      .then((result) => {
+        return res.json(result)
+      })
+      .catch(err => console.log('err: ' + err));
+  }
 })
 
-async function handleEvent(event) {
-  console.log(event);
+function handleEvent(event) {
+  
+  event.type in typesHandler
+    ? typesHandler[event.type](event)
+    : typesHandler['other'](event);
+}
 
-  let message = [];
+function signatureCheck(request, channelSecret) {
+  const body = JSON.stringify(request.body);
+  const xLineSignature = request.get('X-Line-Signature');
+  const signature = crypto
+    .createHmac('SHA256', channelSecret)
+    .update(body).digest('base64');
 
-  if (event.type === 'postback' && event.postback.data.length > 0) {
-    let data = querystring.parse(event.postback.data, null, null);
-    if (data.action === 'dcard') {
-      const fetchDCard = await api(data.item, { query: { 'popular': true } });
-
-      message = fetchDCard.slice(0, 12).map(i => {
-        const hero = flexHero(i.mediaMeta[0]);
-        return flexStructure(hero, i, { host: HOST });
-      })
-
-      return client.replyMessage(event.replyToken, {
-        "type": "flex",
-        "altText": "this is a flex message",
-        "contents": {
-          "type": "carousel",
-          "contents": message
-        }
-      });
-
-    } else if (data.action === 'nextRich') {
-      return client.replyMessage(event.replyToken, {
-        "type": "text",
-        "text": "$ 預計是下一頁Rich menu呀",
-        "emojis": [
-          {
-            "index": 0,
-            "productId": "5ac1bfd5040ab15980c9b435",
-            "emojiId": "163"
-          },
-        ]
-      })
-    } else if (data.action === 'tool') {
-      return client.replyMessage(event.replyToken, {
-        "type": 'text',
-        "text": '我還在測試拉顆顆顆(Quick reply)',
-        "quickReply": {
-          "items": [
-            {
-              "type": "action",
-              "action": {
-                "type": "postback",
-                "label": "低能卡熱門12則貼文",
-                "data": "action=dcard&item=posts",
-              }
-            },
-            {
-              "type": "action",
-              "action": {
-                "type": "cameraRoll",
-                "label": "Send photo"
-              }
-            },
-            {
-              "type": "action",
-              "action": {
-                "type": "camera",
-                "label": "Open camera"
-              }
-            }
-          ]
-        }
-      });
-    } else {
-      return client.replyMessage(event.replyToken, {
-        "type": "text",
-        "text": "$ 找不到指令喔 $",
-        "emojis": [
-          {
-            "index": 0,
-            "productId": "5ac1bfd5040ab15980c9b435",
-            "emojiId": "164"
-          },
-          {
-            "index": 9,
-            "productId": "5ac1bfd5040ab15980c9b435",
-            "emojiId": "164"
-          }
-        ]
-      });
-    }
-  }
-
-  if (event.type !== 'message' || event.message.type !== 'text') {
-    return Promise.resolve(null);
-  }
+  return xLineSignature === signature;
 }
 
 app.listen(PORT);

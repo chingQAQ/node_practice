@@ -1,8 +1,9 @@
+require("babel-polyfill");
 var path = require('path')
 var webpack = require('webpack')
 
 module.exports = {
-  entry: './frontend/src/main.js',
+  entry: ['babel-polyfill', './frontend/src/main.js'],
   output: {
     path: path.resolve(__dirname, './frontend'),
     publicPath: '/dist/',
@@ -72,12 +73,22 @@ module.exports = {
     contentBase: path.resolve(__dirname, 'frontend'),
     historyApiFallback: true,
     noInfo: true,
-    overlay: true
+    overlay: true,
+    disableHostCheck: true,
   },
   performance: {
     hints: false
   },
-  devtool: '#eval-source-map'
+  devtool: '#eval-source-map',
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: '"development"',
+        LINE_LIFF_URL: JSON.stringify('https://6f4b937741c4.ngrok.io'),
+        LINE_LIFF_ID: JSON.stringify('1655568378-JmKqRyGk'),
+      },
+    }),
+  ],
 }
 
 if (process.env.NODE_ENV === 'production') {
@@ -86,8 +97,8 @@ if (process.env.NODE_ENV === 'production') {
   module.exports.plugins = (module.exports.plugins || []).concat([
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: '"production"'
-      }
+        NODE_ENV: '"production"',
+      },
     }),
     new webpack.optimize.UglifyJsPlugin({
       sourceMap: true,

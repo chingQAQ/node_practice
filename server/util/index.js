@@ -1,1 +1,2 @@
-export * from './flex-message';
+export * from './flex-message.js';
+export * from './typesHandler';
